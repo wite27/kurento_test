@@ -112,6 +112,9 @@ window.onload = function() {
 	});
 	document.getElementById('play').addEventListener('click', function() {
 		play();
+	});	
+	document.getElementById('joinRoom').addEventListener('click', function(){
+		joinRoom();
 	});
 }
 
@@ -126,6 +129,9 @@ ws.onmessage = function(message) {
 	switch (parsedMessage.id) {
 	case 'registerResponse':
 		resgisterResponse(parsedMessage);
+		break;
+	case 'joinRoomResponse':
+		joinRoomResponse(parsedMessage);
 		break;
 	case 'callResponse':
 		callResponse(parsedMessage);
@@ -169,6 +175,16 @@ function resgisterResponse(message) {
 	}
 }
 
+function joinRoomResponse (message) {
+	if (message.response == 'accepted'){
+		alert('You are successfully joined the room!');
+	} else {
+		var errorMessage = message.message ? message.message
+				: 'Unknown reason for register rejection.';
+		console.log(errorMessage);
+		alert('Error registering user. See console for further information.');
+	}
+}
 function callResponse(message) {
 	if (message.response != 'accepted') {
 		console.info('Call not accepted by peer. Closing call');
@@ -278,6 +294,20 @@ function register() {
 	};
 	sendMessage(message);
 	document.getElementById('peer').focus();
+}
+
+function joinRoom () {
+	var room = document.getElementById('joinRoom').value;
+	if (room == '') {
+		window.alert("Room name couldnt be empty!");
+		return;
+	}
+
+	var message = {
+		id: 'joinRoom',
+		name : name
+	};
+	sendMessage(message);
 }
 
 function call() {

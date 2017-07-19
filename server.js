@@ -24,7 +24,7 @@ var fs = require('fs');
 
 var argv = minimist(process.argv.slice(2), {
   default: {
-      as_uri: "http://localhost:8443/",
+      as_uri: "https://localhost:8443/",
       ws_uri: "ws://localhost:8888/kurento"
   }
 });
@@ -319,9 +319,16 @@ CallMediaPipeline.prototype.release = function() {
     this.pipeline = null;
 };
 
+function userLeftMessage(user, room)
+{
+    return message
+    {
+        id: ''
+    };
+}
 function OnUserLeft(user, room)
 {
-
+    // room.broadcastFrom(user, );
 }
 function OnUserJoin(user, room)
 {
@@ -456,6 +463,10 @@ wss.on('connection', function(ws) {
         switch (message.id) {
         case 'register':
             register(sessionId, message.name, ws);
+            break;
+
+        case 'joinRoom':
+            joinRoom(sessionId, message.name, ws);
             break;
 
         case 'call':
@@ -710,6 +721,22 @@ function register(id, name, ws, callback) {
     }
 }
 
+function joinRoom (id, roomId, ws, callback) {
+    function onError(error) {
+        ws.send(JSON.stringify({id:'joinRoomResponse', response : 'rejected', message: error}));
+    }
+
+    var user = userRegistry.getById(id);
+    if (!user)
+        return onError("You are not registred!");
+
+    roomRegistry.roomsById[roomId].join(user);
+    try {
+        ws.send(JSON.stringify({id: 'joinRoomResponse', response: 'accepted'}));
+    } catch(exception) {
+        onError(exception);
+    }
+}
 function clearCandidatesQueue(sessionId) {
     if (candidatesQueue[sessionId]) {
         delete candidatesQueue[sessionId];
