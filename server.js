@@ -106,7 +106,7 @@ Room.prototype.join = function(user)
 {
     if (!this.participants[user.id])
     {
-        onUserJoin(user);
+        OnUserJoin(user, this);
         this.participants[user.id] = user;
     }
 }
@@ -114,7 +114,7 @@ Room.prototype.leave = function(user)
 {
     if (this.participants[user.id])
     {
-        onUserLeft(user);
+        OnUserLeft(user, this);
         delete this.participants[user.id];
     }
 }
@@ -319,21 +319,32 @@ CallMediaPipeline.prototype.release = function() {
     this.pipeline = null;
 };
 
-function userLeftMessage(user, room)
-{
-    return message
-    {
-        id: ''
+function userLeftMessage(user, room) {
+    var message = {
+        id: 'userLeft',
+        userName: user.name,
+        roomName: room.name
     };
+    return message;
 }
-function OnUserLeft(user, room)
-{
-    // room.broadcastFrom(user, );
-}
-function OnUserJoin(user, room)
-{
 
+function newUserJoinedMessage(user, room) {
+    var message = {
+        id: 'newUserJoined',
+        userName: user.name,
+        roomName: room.name
+    };
+    return message;
 }
+
+function OnUserLeft(user, room) {
+    room.broadcastFrom(user, userLeftMessage(user, room));
+}
+
+function OnUserJoin(user, room) {
+    room.broadcastFrom(user, newUserJoinedMessage(user, room));
+}
+
 // Represents player pipeline
 function PlayMediaPipeline() {
     this.pipeline = null;

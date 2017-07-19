@@ -128,10 +128,16 @@ ws.onmessage = function(message) {
 
 	switch (parsedMessage.id) {
 	case 'registerResponse':
-		resgisterResponse(parsedMessage);
+		registerResponse(parsedMessage);
 		break;
 	case 'joinRoomResponse':
 		joinRoomResponse(parsedMessage);
+		break;
+	case 'newUserJoined':
+		newUserJoined(parsedMessage);
+		break;
+	case 'userLeft':
+		userLeft(parsedMessage);
 		break;
 	case 'callResponse':
 		callResponse(parsedMessage);
@@ -163,7 +169,7 @@ ws.onmessage = function(message) {
 	}
 }
 
-function resgisterResponse(message) {
+function registerResponse(message) {
 	if (message.response == 'accepted') {
 		setRegisterState(REGISTERED);
 	} else {
@@ -185,6 +191,15 @@ function joinRoomResponse (message) {
 		alert('Error registering user. See console for further information.');
 	}
 }
+
+function userLeft(message) {
+	console.log(message);
+}
+
+function newUserJoined(message){
+	console.log(message);
+}
+
 function callResponse(message) {
 	if (message.response != 'accepted') {
 		console.info('Call not accepted by peer. Closing call');
@@ -297,7 +312,7 @@ function register() {
 }
 
 function joinRoom () {
-	var room = document.getElementById('joinRoom').value;
+	var room = document.getElementById('room').value;
 	if (room == '') {
 		window.alert("Room name couldnt be empty!");
 		return;
@@ -305,7 +320,7 @@ function joinRoom () {
 
 	var message = {
 		id: 'joinRoom',
-		name : name
+		name : room
 	};
 	sendMessage(message);
 }
